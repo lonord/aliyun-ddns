@@ -1,0 +1,5 @@
+package: github.com/lonord/aliyun-ddns
+import:
+- package: github.com/aliyun/alibaba-cloud-sdk-go
+  subpackages:
+  - services/alidns
