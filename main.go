@@ -12,8 +12,7 @@ import (
 )
 
 var (
-	appVersion = "dev"
-	buildTime  = "unknow"
+	appVersion = "1.0.1"
 )
 
 var (
@@ -34,6 +33,12 @@ const (
 	EnvDomain       = EnvPrefix + "DOMAIN"
 	EnvDomainType   = EnvPrefix + "DDMAIN_TYPE"
 	EnvRR           = EnvPrefix + "RR"
+)
+
+// Default values
+const (
+	DefRegion = "cn-hangzhou"
+	DefDomainType = "A"
 )
 
 func main() {
@@ -67,33 +72,35 @@ func main() {
 }
 
 func parseArgs() {
-	flag.StringVar(&regionID, "region", "", "Region ID")
+	flag.StringVar(&regionID, "region", DefRegion, "Region ID")
 	flag.StringVar(&accessKeyID, "key", "", "Access Key ID")
 	flag.StringVar(&accessKeySecret, "secret", "", "Access Key Secret")
 	flag.StringVar(&domainName, "domain", "", "Domain name (like google.com)")
 	flag.StringVar(&rrName, "rr", "", "Resource record (RR)")
-	flag.StringVar(&domainType, "type", "", "Domain type (A,CNAME,MX,etc...)")
+	flag.StringVar(&domainType, "type", DefDomainType, "Domain type (A,CNAME,MX,etc...)")
 	ver := flag.Bool("v", false, "Show version")
 	flag.Parse()
 	if *ver {
 		fmt.Println("version", appVersion)
-		fmt.Println("build time", buildTime)
 		os.Exit(0)
 	}
-	checkArg(&regionID, "Region ID", "region", EnvRegion)
-	checkArg(&accessKeyID, "Access Key ID", "key", EnvAccessKey)
-	checkArg(&accessKeySecret, "Access Key Secret", "secret", EnvAccessSecret)
-	checkArg(&domainName, "Domain", "domain", EnvDomain)
-	checkArg(&rrName, "Resource record (RR)", "rr", EnvRR)
-	checkArg(&domainType, "Domain type", "type", EnvDomainType)
+	checkArg(&regionID, "Region ID", "region", EnvRegion, DefRegion)
+	checkArg(&accessKeyID, "Access Key ID", "key", EnvAccessKey, "")
+	checkArg(&accessKeySecret, "Access Key Secret", "secret", EnvAccessSecret, "")
+	checkArg(&domainName, "Domain", "domain", EnvDomain, "")
+	checkArg(&rrName, "Resource record (RR)", "rr", EnvRR, "")
+	checkArg(&domainType, "Domain type", "type", EnvDomainType, DefDomainType)
 }
 
-func checkArg(v *string, name, para, env string) {
+func checkArg(v *string, name, para, env, def string) {
 	if *v == "" {
 		vv, exist := os.LookupEnv(env)
-		if !exist || vv == "" {
-			fmt.Printf("%s is required, specify by -%s parameter or %s env\n", name, para, env)
-			os.Exit(1)
+		if !exist {
+			vv = def
+			if vv == "" {
+				fmt.Printf("%s is required, specify by -%s parameter or %s env\n", name, para, env)
+				os.Exit(1)
+			}
 		}
 		*v = vv
 	}
