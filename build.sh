@@ -1,9 +1,7 @@
 #!/bin/bash
 
 APP_NAME=aliyun-ddns
-APP_VERSION=1.0
 DIST_DIR=dist
-BUILD_TIME=$(date "+%F %T %Z")
 
 WINDOWS_ARCH=386,amd64
 LINUX_ARCH=386,amd64,arm,arm64
@@ -23,12 +21,7 @@ gobuild() {
 	target_dir=$DIST_DIR/$1/$2
 	rm -rf $target_dir
 	GOOS=$1 GOARCH=$2 go build -o $target_dir/${APP_NAME}${append_suffix}${ext} \
-	-ldflags \
-	"\
-	-X 'main.appName=${APP_NAME}' \
-	-X 'main.appVersion=${APP_VERSION}' \
-	-X 'main.buildTime=${BUILD_TIME}' \
-	" \
+    -ldflags "-s -w" \
 	.
 }
 
